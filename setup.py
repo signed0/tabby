@@ -15,7 +15,8 @@ setup(
     license = 'BSD',
     entry_points = {},
     classifiers = ['Development Status :: 3 - Alpha',
-                   'Operating System :: OS Independent'
+                   'Operating System :: OS Independent',
+                   'License :: OSI Approved :: BSD License'
                    ],
     install_requires = [],
     zip_safe=True,
