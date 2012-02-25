@@ -5,17 +5,17 @@ Tabby allows one to setup a schema and then parse a iterable of rows into that s
 import csv
 import tabby
 
-url_schema = [fields.StringField('stop_id'),
-              fields.StringField('stop_code', key='code'),
-              fields.StringField('stop_name', key='name'),
-              fields.StringField('stop_desc', key='desc'),
-              fields.FloatField('stop_lat', key='lat'),
-              fields.FloatField('stop_lon', key='lon'),
-              fields.StringField('zone_id'),
-              fields.StringField('stop_url', key='url'),
-              ]
+schema = [fields.StringField('stop_id'),
+          fields.StringField('stop_code', key='code'),
+          fields.StringField('stop_name', key='name'),
+          fields.StringField('stop_desc', key='desc'),
+          fields.FloatField('stop_lat', key='lat'),
+          fields.FloatField('stop_lon', key='lon'),
+          fields.StringField('zone_id'),
+          fields.StringField('stop_url', key='url'),
+          ]
                 
-with open('routes.txt', 'r') as f:
+with open('file.csv', 'r') as f:
     rows = csv.reader(f)
     rows = list(tabby.parse(rows, schema))
       
