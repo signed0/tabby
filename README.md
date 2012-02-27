@@ -4,6 +4,7 @@ Tabby allows one to setup a schema and then parse an iterable of rows into that 
 ```python
 import csv
 import tabby
+import tabby.fields
 
 schema = [tabby.fields.StringField('stop_id'),
           tabby.fields.StringField('stop_code', key='code'),
