@@ -1,18 +1,18 @@
 When working with a csv or tsv file it often useful to coerce the output into a given format. 
-Tabby allows one to setup a schema and then parse a iterable of rows into that schema.
+Tabby allows one to setup a schema and then parse an iterable of rows into that schema.
 
 ```python
 import csv
 import tabby
 
-schema = [fields.StringField('stop_id'),
-          fields.StringField('stop_code', key='code'),
-          fields.StringField('stop_name', key='name'),
-          fields.StringField('stop_desc', key='desc'),
-          fields.FloatField('stop_lat', key='lat'),
-          fields.FloatField('stop_lon', key='lon'),
-          fields.StringField('zone_id'),
-          fields.StringField('stop_url', key='url'),
+schema = [tabby.fields.StringField('stop_id'),
+          tabby.fields.StringField('stop_code', key='code'),
+          tabby.fields.StringField('stop_name', key='name'),
+          tabby.fields.StringField('stop_desc', key='desc'),
+          tabby.fields.FloatField('stop_lat', key='lat'),
+          tabby.fields.FloatField('stop_lon', key='lon'),
+          tabby.fields.StringField('zone_id'),
+          tabby.fields.StringField('stop_url', key='url'),
           ]
                 
 with open('file.csv', 'r') as f:
