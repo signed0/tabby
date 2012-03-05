@@ -4,21 +4,21 @@ Tabby allows one to setup a schema and then parse an iterable of rows into that 
 ```python
 import csv
 import tabby
-import tabby.fields
+from tabby import fields
 
-schema = [tabby.fields.StringField('stop_id'),
-          tabby.fields.StringField('stop_code', key='code'),
-          tabby.fields.StringField('stop_name', key='name'),
-          tabby.fields.StringField('stop_desc', key='desc'),
-          tabby.fields.FloatField('stop_lat', key='lat'),
-          tabby.fields.FloatField('stop_lon', key='lon'),
-          tabby.fields.StringField('zone_id'),
-          tabby.fields.StringField('stop_url', key='url'),
-          ]
+class StopSchema(Schema):
+    stop_id = fields.StringField()
+    code = fields.StringField('stop_code')
+    name = fields.StringField('stop_name')
+    desc = fields.StringField('stop_desc')
+    lat = fields.FloatField('stop_lat')
+    lon = fields.FloatField('stop_lon')
+    zone_id fields.StringField()
+    url = fields.StringField('stop_url'),
                 
-with open('file.csv', 'r') as f:
+with open('stops.csv', 'r') as f:
     rows = csv.reader(f)
-    rows = list(tabby.parse(rows, schema))
+    rows = list(StopSchema.process(rows)
       
 >>> print rows[0]
 {'code': '12925', 
