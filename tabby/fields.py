@@ -21,11 +21,19 @@ def str_or_none(value):
     return value
 
 class Field(object):
-    def __init__(self, name, default=None, required=False, key=None):
-        self.name = name
-        self.key = key if key is not None else name
+    def __init__(self, column=None, default=None, required=False, name=None):
+        # name is what the field will be stored as
+        # column is the name used in the incoming data
+
+        self.name = column if name is None else name
+        self.column = column
         self.default = default
         self.required = required
+
+    def set_name(self, value):
+        self.name = value
+        if self.column is None:
+            self.column = value
 
     def parse(self, value):
         value = str_or_none(value)
