@@ -18,7 +18,7 @@ class StopSchema(Schema):
                 
 with open('stops.csv', 'r') as f:
     rows = csv.reader(f)
-    rows = list(StopSchema.process(rows)
+    rows = list(StopSchema.process(rows))
       
 >>> print rows[0]
 {'code': '12925', 
