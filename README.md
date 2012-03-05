@@ -13,8 +13,8 @@ class StopSchema(Schema):
     desc = fields.StringField('stop_desc')
     lat = fields.FloatField('stop_lat')
     lon = fields.FloatField('stop_lon')
-    zone_id fields.StringField()
-    url = fields.StringField('stop_url'),
+    zone_id = fields.StringField()
+    url = fields.StringField('stop_url')
                 
 with open('stops.csv', 'r') as f:
     rows = csv.reader(f)
