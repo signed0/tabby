@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name = 'Tabby',
-    version = '0.1',
+    version = '0.2',
     packages = ['tabby'],
     author = 'Nathan Villaescusa',
     author_email = 'nathan@signedzero.com',
