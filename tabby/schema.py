@@ -34,7 +34,3 @@ class Schema(object):
     '''A object that all validators need to subclass'''
 
     __metaclass__ = SchemaMeta
-
-    @classmethod
-    def parse(self, data, cols=None):
-        return parse(self._fields, data, cols)
