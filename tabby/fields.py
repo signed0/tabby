@@ -71,8 +71,7 @@ class FloatField(Field):
 
 class TimeField(Field):
     def coerce(self, value):
-        value = value.split(':')
-        h, m, s = value
+        h, m, s = [int(i) for i in value.split(':')]
         return time(h, m, s)
 
 class DateField(Field):
