@@ -1,13 +1,7 @@
 
-from tabby.base import OBJECT, DICT
+from tabby.base import OBJECT, DICT, Struct
 
-class Struct(object):
-	def __init__(self, data):
-		for k, v in data:
-			setattr(self, k, v)
 
-	def pop(self, arg, default=None):
-		return self.__dict__.pop(arg, default)
 
 def parse(fields, data, cols=None, format=DICT):
 	# if cols were not supplied use the first item in data
