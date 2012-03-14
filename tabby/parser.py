@@ -32,7 +32,7 @@ def parse(fields, data, cols=None, format=DICT):
 
 def iter_dicts(rows, field_map):
 	for row in rows:
-		yield dict((get_cell(row, field, col) for field, col in field_map))
+		yield dict(get_cell(row, field, col) for field, col in field_map)
 
 def iter_objects(rows, field_map):
 	for row in rows:
