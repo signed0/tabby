@@ -26,7 +26,7 @@ class SchemaMeta(type):
                 # it is not a field, include it in the new class definition
                 attrs[key] = value
 
-        attrs['process'] = staticmethod(lambda a, b=None : parse(fields, a, b))
+        attrs['fields'] = fields
 
         return super(SchemaMeta, cls).__new__(cls, name, parents, attrs)
 
@@ -34,3 +34,7 @@ class Schema(object):
     '''A object that all validators need to subclass'''
 
     __metaclass__ = SchemaMeta
+
+    @classmethod
+    def process(cls, *args, **kwargs):
+        return parse(cls.fields, *args, **kwargs)

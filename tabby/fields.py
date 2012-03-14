@@ -1,13 +1,7 @@
 import logging
 from datetime import date, time
 
-class TabbyError(Exception):
-
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return repr(self.msg)
+from tabby.base import TabbyError
 
 def str_or_none(value):
     if len(value) == 0:
