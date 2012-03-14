@@ -38,13 +38,14 @@ def parse(fields, data, cols=None, format=DICT):
 
 def iter_dicts(rows, field_map):
 	for row in rows:
-		r = ((field.name, field.default if i is None else field.parse(row[i])) for field, i in field_map)
-		yield dict(r)
+		yield dict((get_cell(row, field, col) for field, col in field_map))
 
 def iter_objects(rows, field_map):
 	for row in rows:
-		o = ((field.name, field.default if i is None else field.parse(row[i])) for field, i in field_map)
-		yield Struct(o)
+		yield Struct((get_cell(row, field, col) for field, col in field_map))
 
 def get_cell(row, field, col):
-	return field.default if col is None else field.parse(row[col])
+	if col is None:
+		return (field.name, field.default)
+	else: 
+		return (field.name, field.parse(row[col]))
