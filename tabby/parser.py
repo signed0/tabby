@@ -1,5 +1,5 @@
 
-from tabby.base import OBJECT, DICT, Struct
+from tabby.base import OBJECT, DICT, Struct, TabbyError
 
 
 
@@ -17,7 +17,7 @@ def parse(fields, data, cols=None, format=DICT):
 
 	for field, index in field_map:
 		if field.required and index is None:
-			raise fields.TabbyError('Missing column `%s`.' % field.column)
+			raise TabbyError('Missing column `%s`.' % field.column)
 
 	rows = (row for row in data if len(row) > 0)
 
