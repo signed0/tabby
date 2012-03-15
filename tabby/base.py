@@ -13,5 +13,4 @@ class TabbyError(Exception):
 
 class Struct(object):
 	def __init__(self, data):
-		for k, v in data:
-			setattr(self, k, v)
+		self.__dict__ = dict(data)
