@@ -1,5 +1,5 @@
 
-from tabby.base import OBJECT, DICT, Struct, TabbyError
+from tabby.base import OBJECT, DICT, NAMEDTUPLE, Struct, TabbyError
 
 
 
@@ -22,11 +22,11 @@ def parse(fields, data, cols=None, format=DICT):
 	rows = (row for row in data if len(row) > 0)
 
 	if format == DICT:
-		return iter_dicts(rows, field_map)
-						
+		return iter_dicts(rows, field_map)					
 	elif format == OBJECT:
 		return iter_objects(rows, field_map)
-
+	elif format == NAMEDTUPLE:
+		return iter_namedtuples(rows, field_map)
 	else:
 		raise TabbyError('Invalid format: %s' % format)
 
@@ -35,8 +35,19 @@ def iter_dicts(rows, field_map):
 		yield dict(get_cell(row, field, col) for field, col in field_map)
 
 def iter_objects(rows, field_map):
+	for d in iter_dicts(rows, field_map):
+		yield Struct(d)
+
+def iter_namedtuples(rows, field_map):
+	from collections import namedtuple
+
+	field_names = tuple(field.name for field , _ in field_map)
+
+	NamedTuple = namedtuple('NamedTuple', field_names)
+
 	for row in rows:
-		yield Struct((get_cell(row, field, col) for field, col in field_map))
+		row = tuple(f.default if i is None else f.parse(row[i]) for f, i in field_map)
+		yield NamedTuple._make(row)
 
 def get_cell(row, field, col):
 	if col is None:

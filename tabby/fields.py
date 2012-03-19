@@ -15,6 +15,7 @@ def str_or_none(value):
     return value
 
 class Field(object):
+
     def __init__(self, column=None, default=None, required=False, name=None):
         # name is what the field will be stored as
         # column is the name used in the incoming data
@@ -29,6 +30,13 @@ class Field(object):
         if self.column is None:
             self.column = value
 
+    def default_or_error(self):
+        '''Returns the default or throw an exception if this field is requried'''
+        if self.required:
+            raise TabbyError('%s is a required field' % self.name)
+        else:
+            return self.default
+
     def parse(self, value):
         value = str_or_none(value)
         if value is None:
@@ -39,9 +47,33 @@ class Field(object):
 
         try:
             return self.coerce(value)
-        except Exception, e:
+
+        except ValueError, e:
+            
             logging.warning(e)
             raise TabbyError('Unable to parse value for %s, (%s)' % (self.name, value))
+
+class _NumberField(Field):
+
+    def parse(self, value):
+        if len(value) == 0:
+            if self.required:
+                raise TabbyError('%s is a required field' % self.name)
+            else:
+                return self.default
+
+        try:
+            return self.coerce(value)
+        except ValueError, e:
+            if value.isspace():
+                if self.required:
+                    raise TabbyError('%s is a required field' % self.name)
+                else:
+                    return self.default
+
+            logging.warning(e)
+            raise TabbyError('Unable to parse value for %s, (%s)' % (self.name, value))
+
 
 class StringField(Field):
 
@@ -55,11 +87,13 @@ class BoolField(Field):
 
         return True
 
-class IntField(Field):
+class IntField(_NumberField):
+
     def coerce(self, value):
         return int(value)
 
-class FloatField(Field):
+class FloatField(_NumberField):
+
     def coerce(self, value):
         return float(value)
 

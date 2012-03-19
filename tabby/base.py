@@ -12,5 +12,10 @@ class TabbyError(Exception):
         return repr(self.msg)
 
 class Struct(object):
-	def __init__(self, data):
-		self.__dict__ = dict(data)
+
+    def __init__(self, data=None, **kwargs):
+        '''Instantiates an object using either a single dictionary or keyword 
+        arguments
+        '''
+
+        self.__dict__ = dict(data or kwargs)
