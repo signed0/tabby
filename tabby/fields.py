@@ -62,7 +62,7 @@ class Field(object):
 class _NumberField(Field):
 
     def parse(self, value):
-        if value is ''
+        if value is '':
             if self.required:
                 raise TabbyError('%s is a required field' % self.name)
             else:
