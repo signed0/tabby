@@ -4,12 +4,12 @@ from datetime import date, time
 from tabby.base import TabbyError
 
 def str_or_none(value):
-    if len(value) == 0:
+    if value is '':
         return None
 
     value = value.strip()
 
-    if len(value) == 0:
+    if value is '':
         return None
 
     return value
