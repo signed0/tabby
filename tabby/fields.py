@@ -38,7 +38,13 @@ class Field(object):
             return self.default
 
     def parse(self, value):
-        value = str_or_none(value)
+        if value is '':
+            value = None
+        else:
+            value = value.strip()
+            if value is '':
+                value = None
+
         if value is None:
             if self.required:
                 raise TabbyError('%s is a required field' % self.name)
@@ -56,7 +62,7 @@ class Field(object):
 class _NumberField(Field):
 
     def parse(self, value):
-        if len(value) == 0:
+        if value is ''
             if self.required:
                 raise TabbyError('%s is a required field' % self.name)
             else:
@@ -77,12 +83,25 @@ class _NumberField(Field):
 
 class StringField(Field):
 
-    def coerce(self, value):
+    def parse(self, value):
+        if value is '':
+            value = None
+        else:
+            value = value.strip()
+            if value is '':
+                value = None
+
+        if value is None:
+            if self.required:
+                raise TabbyError('%s is a required field' % self.name)
+            else:
+                return self.default
+
         return value
 
 class BoolField(Field):
     def coerce(self, value):
-        if value.lower() in ('0', 'false', 'no', 'f', 'n'):
+        if value.lower() in ('0', 'false', 'f'):
             return False
 
         return True
