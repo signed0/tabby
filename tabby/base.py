@@ -18,4 +18,4 @@ class Struct(object):
         arguments
         '''
 
-        self.__dict__ = dict(data or kwargs)
+        self.__dict__ = data or kwargs

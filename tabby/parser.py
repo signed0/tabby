@@ -1,56 +1,88 @@
 
 from tabby.base import OBJECT, DICT, NAMEDTUPLE, Struct, TabbyError
 
-
-
 def parse(fields, data, cols=None, format=DICT):
-	# if cols were not supplied use the first item in data
-	data = iter(data)
-	if cols is None:
-		cols = data.next()
-		cols = [c.strip() for c in cols]
+    # if cols were not supplied use the first item in data
+    data = iter(data)
+    if cols is None:
+        cols = data.next()
+        cols = [c.strip() for c in cols]
 
-	# create a mapping of cols to row indicees
-	col_map = dict((col, i) for i, col in enumerate(cols))
+    # create a mapping of cols to row indicees
+    col_map = dict((col, i) for i, col in enumerate(cols))
 
-	field_map = tuple((field, col_map.get(field.column)) for field in fields)
+    missing_fields, included_fields = build_fields(fields, col_map)        
 
-	for field, index in field_map:
-		if field.required and index is None:
-			raise TabbyError('Missing column `%s`.' % field.column)
+    # filter out empty rows
+    rows = (row for row in data if len(row) > 0)
 
-	rows = (row for row in data if len(row) > 0)
+    iter_encoder = get_encoder(format)
 
-	if format == DICT:
-		return iter_dicts(rows, field_map)					
-	elif format == OBJECT:
-		return iter_objects(rows, field_map)
-	elif format == NAMEDTUPLE:
-		return iter_namedtuples(rows, field_map)
-	else:
-		raise TabbyError('Invalid format: %s' % format)
+    return iter_encoder(rows, missing_fields, included_fields)
 
-def iter_dicts(rows, field_map):
-	for row in rows:
-		yield dict(get_cell(row, field, col) for field, col in field_map)
+def build_fields(fields, col_map):
 
-def iter_objects(rows, field_map):
-	for d in iter_dicts(rows, field_map):
-		yield Struct(d)
+    missing_fields = []
+    included_fields = []
 
-def iter_namedtuples(rows, field_map):
-	from collections import namedtuple
+    for field in fields:
+        index = col_map.get(field.column)
+        if index is None:
 
-	field_names = tuple(field.name for field , _ in field_map)
+            if field.required:
+                raise TabbyError('Missing column `%s`.' % field.column)
 
-	NamedTuple = namedtuple('NamedTuple', field_names)
+            missing_fields.append((field.name, field.default))
+        else:
+            included_fields.append((index, field.name, field.parse))
 
-	for row in rows:
-		row = tuple(f.default if i is None else f.parse(row[i]) for f, i in field_map)
-		yield NamedTuple._make(row)
+    return tuple(missing_fields), tuple(included_fields)
 
-def get_cell(row, field, col):
-	if col is None:
-		return (field.name, field.default)
-	else: 
-		return (field.name, field.parse(row[col]))
+def get_encoder(format):
+    if format == DICT:
+        return iter_dicts
+
+    elif format == OBJECT:
+        return iter_objects
+
+    elif format == NAMEDTUPLE:
+        return iter_namedtuples
+
+    raise TabbyError('Invalid format: %s' % format)
+
+def iter_dicts(rows, missing_fields, included_fields):
+    for row in rows:
+        s = dict(missing_fields)
+        s.update((name, parser(row[i])) for i, name, parser in included_fields)
+        
+        yield s
+
+def iter_objects(rows, missing_fields, included_fields):
+
+    for row in rows:
+        s = Struct()
+
+        for name, value in missing_fields:
+            setattr(s, name, value)
+
+        for i, name, f_parse in included_fields:
+            setattr(s, name, f_parse(row[i]))
+        
+        yield s
+
+def iter_namedtuples(rows, missing_fields, included_fields):
+    from collections import namedtuple
+
+    field_names = tuple(name for _, name, _ in included_fields)
+
+    NamedTuple = namedtuple('NamedTuple', field_names)
+
+    for f_name, f_default in missing_fields:
+        setattr(NamedTuple, f_name, f_default)
+
+    # remove name, we don't need it anymore
+    included_fields = tuple((i, f_parse) for i, _, f_parse in included_fields)
+
+    maker = NamedTuple._make
+    for row in rows:
+        yield maker(tuple(f_parse(row[i]) for i, f_parse in included_fields))
