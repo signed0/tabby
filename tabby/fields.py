@@ -69,7 +69,7 @@ class _NumberField(Field):
                 return self.default
 
         try:
-            return self.coerce(value)
+            return self.coercer(value)
         except ValueError, e:
             if value.isspace():
                 if self.required:
@@ -107,14 +107,11 @@ class BoolField(Field):
         return True
 
 class IntField(_NumberField):
-
-    def coerce(self, value):
-        return int(value)
+    
+    coercer = int
 
 class FloatField(_NumberField):
-
-    def coerce(self, value):
-        return float(value)
+    coercer = float
 
 class TimeField(Field):
     def coerce(self, value):
