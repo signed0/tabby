@@ -11,6 +11,9 @@ class TabbyError(Exception):
     def __str__(self):
         return repr(self.msg)
 
+class Obj():
+    pass
+
 class Struct(object):
 
     def __init__(self, data=None, **kwargs):

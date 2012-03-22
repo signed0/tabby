@@ -3,17 +3,6 @@ from datetime import date, time
 
 from tabby.base import TabbyError
 
-def str_or_none(value):
-    if value is '':
-        return None
-
-    value = value.strip()
-
-    if value is '':
-        return None
-
-    return value
-
 class Field(object):
 
     def __init__(self, column=None, default=None, required=False, name=None):
@@ -40,10 +29,10 @@ class Field(object):
     def parse(self, value):
         if value is '':
             value = None
-        else:
-            value = value.strip()
-            if value is '':
-                value = None
+        #else:
+        #    value = value.strip()
+        #    if value is '':
+        #        value = None
 
         if value is None:
             if self.required:
@@ -72,10 +61,7 @@ class _NumberField(Field):
             return self.coercer(value)
         except ValueError, e:
             if value.isspace():
-                if self.required:
-                    raise TabbyError('%s is a required field' % self.name)
-                else:
-                    return self.default
+                return self.default_or_error()
 
             logging.warning(e)
             raise TabbyError('Unable to parse value for %s, (%s)' % (self.name, value))
@@ -86,10 +72,10 @@ class StringField(Field):
     def parse(self, value):
         if value is '':
             value = None
-        else:
-            value = value.strip()
-            if value is '':
-                value = None
+        #else:
+        #    value = value.strip()
+        #    if value is '':
+        #        value = None
 
         if value is None:
             if self.required:
@@ -107,7 +93,6 @@ class BoolField(Field):
         return True
 
 class IntField(_NumberField):
-    
     coercer = int
 
 class FloatField(_NumberField):
