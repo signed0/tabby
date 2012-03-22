@@ -29,10 +29,10 @@ class Field(object):
     def parse(self, value):
         if value is '':
             value = None
-        #else:
-        #    value = value.strip()
-        #    if value is '':
-        #        value = None
+        else:
+            value = value.strip()
+            if value is '':
+                value = None
 
         if value is None:
             if self.required:
@@ -72,10 +72,10 @@ class StringField(Field):
     def parse(self, value):
         if value is '':
             value = None
-        #else:
-        #    value = value.strip()
-        #    if value is '':
-        #        value = None
+        else:
+            value = value.strip()
+            if value is '':
+                value = None
 
         if value is None:
             if self.required:
