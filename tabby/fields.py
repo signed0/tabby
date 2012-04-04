@@ -84,6 +84,24 @@ class StringField(Field):
                 return self.default
 
         return value
+        
+class UnicodeField(fields.Field):
+
+    def parse(self, value):
+        if value is '':
+            value = None
+        else:
+            value = value.strip()
+            if value is '':
+                value = None
+
+        if value is None:
+            if self.required:
+                raise TabbyError('%s is a required field' % self.name)
+            else:
+                return self.default
+
+        return unicode(value.decode('UTF-8'))
 
 class BoolField(Field):
     def coerce(self, value):
