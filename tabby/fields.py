@@ -85,7 +85,7 @@ class StringField(Field):
 
         return value
         
-class UnicodeField(fields.Field):
+class UnicodeField(Field):
 
     def parse(self, value):
         if value is '':
