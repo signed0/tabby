@@ -1,5 +1,5 @@
-When working with a csv or tsv file it often useful to coerce the output into a given format. 
-Tabby allows one to setup a schema and then parse an iterable of rows into that schema.
+When working with a csv or tsv file, it is often useful to coerce the output into a given format. 
+Tabby allows one to define a schema and then parse an iterable of rows into that schema.
 
 ```python
 import csv
