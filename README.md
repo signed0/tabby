@@ -4,7 +4,7 @@ Tabby allows one to define a schema and then parse an iterable of rows into that
 ```python
 import csv
 import tabby
-from tabby import fields
+from tabby import fields, Schema
 
 class StopSchema(Schema):
     stop_id = fields.StringField()
