@@ -1,5 +1,5 @@
-import logging
-from datetime import date, time
+import datetime, re
+from decimal import Decimal
 
 from tabby.base import TabbyError
 
@@ -22,7 +22,7 @@ class Field(object):
     def default_or_error(self):
         '''Returns the default or throw an exception if this field is requried'''
         if self.required:
-            raise TabbyError('%s is a required field' % self.name)
+            raise TabbyError('{} is a required field.'.format(self.name))
         else:
             return self.default
 
@@ -36,36 +36,32 @@ class Field(object):
 
         if value is None:
             if self.required:
-                raise TabbyError('%s is a required field' % self.name)
+                raise TabbyError('{} is a required field.'.format(self.name))
             else:
                 return self.default
 
         try:
             return self.coerce(value)
 
-        except ValueError, e:
-            
-            logging.warning(e)
-            raise TabbyError('Unable to parse value for %s, (%s)' % (self.name, value))
+        except ValueError as e:
+            raise TabbyError('Unable to parse value for {}, {}: {}'.format(self.name, value, e))
 
 class _NumberField(Field):
 
     def parse(self, value):
         if value is '':
             if self.required:
-                raise TabbyError('%s is a required field' % self.name)
+                raise TabbyError('{} is a required field.'.format(self.name))
             else:
                 return self.default
 
         try:
             return self.coercer(value)
-        except ValueError, e:
+        except ValueError as e:
             if value.isspace():
                 return self.default_or_error()
 
-            logging.warning(e)
-            raise TabbyError('Unable to parse value for %s, (%s)' % (self.name, value))
-
+            raise TabbyError('Unable to parse value for {}, {}: {}.'.format(self.name, value, e))
 
 class StringField(Field):
 
@@ -79,7 +75,7 @@ class StringField(Field):
 
         if value is None:
             if self.required:
-                raise TabbyError('%s is a required field' % self.name)
+                raise TabbyError('{} is a required field.'.format(self.name))
             else:
                 return self.default
 
@@ -88,24 +84,20 @@ class StringField(Field):
 class UnicodeField(Field):
 
     def parse(self, value):
+        value = value.strip()
+        
         if value is '':
-            value = None
-        else:
-            value = value.strip()
-            if value is '':
-                value = None
-
-        if value is None:
             if self.required:
-                raise TabbyError('%s is a required field' % self.name)
+                raise TabbyError('{} is a required field.'.format(self.name))
             else:
                 return self.default
 
-        return unicode(value.decode('UTF-8'))
+        return value.decode('UTF-8')
 
 class BoolField(Field):
+
     def coerce(self, value):
-        if value.lower() in ('0', 'false', 'f'):
+        if value.lower().decode('UTF-8') in ('0', 'false', 'f'):
             return False
 
         return True
@@ -116,26 +108,98 @@ class IntField(_NumberField):
 class FloatField(_NumberField):
     coercer = float
 
-class TimeField(Field):
-    def coerce(self, value):
-        h, m, s = [int(i) for i in value.split(':')]
-        return time(h, m, s)
+class DecimalField(_NumberField):
 
-class DateField(Field):
-    def coerce(self, value):
-        year = int(value[:4])
-        month = int(value[4:6])
-        day = int(value[6:])
+    def coercer(self, value):
+        v = value.strip().decode('UTF-8')
+        
+        if not v:
+            if self.required:
+                raise TabbyError('{} is a required field.'.format(self.name))
+            else:
+                return self.default
 
-        return date(year, month, day)
+        try:
+            return Decimal(v)
+        except Exception as e:
+            raise TabbyError('Unable to parse value for {}, {}: {}.'.format(self.name, value, e))
+
+class DateTimeField(Field):
+
+    DEFAULT_FMT = '%Y-%m-%dT%H:%M:%S'
+
+    def __init__(self, *args, **kwargs):
+        self.fmt = kwargs.pop('fmt', self.DEFAULT_FMT)
+
+        Field.__init__(self, *args, **kwargs)
+
+    def coerce(self, value):
+        return datetime.datetime.strptime(value.decode('UTF-8'), self.fmt)
+
+class DateField(DateTimeField):
+    
+    DEFAULT_FMT = '%Y-%m-%d'
+
+    def coerce(self, value):
+        return datetime.datetime.strptime(value.decode('UTF-8'), self.fmt).date()
+
+class TimeField(DateTimeField):
+
+    DEFAULT_FMT = '%H:%M:%S'
+
+    def coerce(self, value):
+        return datetime.datetime.strptime(value.decode('UTF-8'), self.fmt).time()
+
+class HumanTimespanField(Field):
+
+    def parse(self, value):
+        value = value.strip().decode('UTF-8')
+        
+        if not value:
+            if self.required:
+                raise TabbyError('{} is a required field.'.format(self.name))
+            else:
+                return self.default
+
+        match = re.match(r'(\d+) hours? [a-z ]*(\d+) min', value)
+        if match:
+            hours, minutes = match.groups()
+            return int(hours) * 3600 + int(minutes) * 60
+
+        match = re.match(r'(\d+) hours?', value)
+        if match:
+            hours, = match.groups()
+            return int(hours) * 3600
+
+        match = re.match(r'(\d+) min', value)
+        if match:
+            minutes,  = match.groups()
+            return int(minutes) * 60
+
+        if self.required:
+            raise TabbyError('{} is a required field.'.format(self.name))
+        else:
+            return self.default
 
 class ColorField(Field):
 
     def coerce(self, value):
-        value = value.upper()
+        v = value.lower().strip().decode('UTF-8')
+
+        if not v:
+            if self.required:
+                raise TabbyError('{} is a required field.'.format(self.name))
+            else:
+                return self.default
+
+        if not re.match(r'^[0-9a-f]+$', v):
+            raise TabbyError('Incorrect color format: "{}".'.format(value))
+
+        if len(v) == 3:
+            v = ''.join((v[0], v[0], v[1], v[1], v[2], v[2]))
+
+        if not len(v) == 6:
+            raise TabbyError('Incorrect color format: "{}".'.format(value))
         
-        if not len(value) == 6:
-            return self.default
-        
-        return value
+        return v
 
