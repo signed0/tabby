@@ -1,5 +1,5 @@
-from fields import Field
-from parser import parse
+from tabby.fields import Field
+from tabby.parser import parse
 
 class SchemaMeta(type):
     '''The metaclass for a validator. Takes a class definition and adds a
