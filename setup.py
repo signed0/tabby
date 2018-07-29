@@ -17,7 +17,7 @@ setup(
     classifiers = [
         'Development Status :: 3 - Alpha',
         'Operating System :: OS Independent',
-        'License :: OSI Approved :: BSD License'
+        'License :: OSI Approved :: BSD License',
         'Intended Audience :: Developers',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
